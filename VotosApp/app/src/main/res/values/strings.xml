@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">VotosApp</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="spinner_busqueda">Selecciona Criterio de Búsqueda</string>
+</resources>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.votosapp.CustomClass.CustomScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fitsSystemWindows="true">
+
+        <!-- Inicio de la Appbar -->
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/AppbarMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/MiTema.AppBarOverlay">
+
+            <!-- Inicio de la Toolbar-->
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/ToolbarMap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/MainActionBar.Popup"/>
+            <!-- Fin de la Toolbar-->
+
+        </android.support.design.widget.AppBarLayout>
+
+
+        <TextView
+            android:id="@+id/textViewBusqueda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/AppbarMap"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="Búsqueda"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/spinnerBusqueda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textViewBusqueda"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerLider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerBusqueda"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerDepartamento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerLider"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerMunicipio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerDepartamento"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerCorregimiento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerMunicipio"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerComuna"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerCorregimiento"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerVereda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerComuna"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <Spinner
+            android:id="@+id/spinnerBarrio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerVereda"
+            android:layout_marginTop="10dp"></Spinner>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btnBuscar"
+            android:layout_width="120dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/spinnerBarrio"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/btn_presionado"
+            android:text="Buscar"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.Button"
+            android:textColor="#ffffff" />
+
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_below="@+id/btnBuscar"
+            android:layout_marginTop="10dp"
+            tools:context="com.votosapp.Activities.MapsActivity" />
+
+    </RelativeLayout>
+</com.votosapp.CustomClass.CustomScrollView>
