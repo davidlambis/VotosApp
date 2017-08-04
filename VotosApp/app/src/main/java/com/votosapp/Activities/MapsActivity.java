@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +22,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -41,16 +48,21 @@ import com.votosapp.CustomClass.HintSpinnerAdapter;
 import com.votosapp.Handler.HttpHandler;
 import com.votosapp.Models.City;
 import com.votosapp.Models.Department;
+import com.votosapp.Models.User;
 import com.votosapp.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.view.View.OnClickListener;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, OnClickListener {
 
     //region Info Mapa
     private GoogleMap mMap;
@@ -61,9 +73,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //endregion Mapa
 
     //region Variables
+    Marker marker;
+    List<Marker> markers = new ArrayList<>();
+    ArrayList<LatLng> positions = new ArrayList<>();
+    ArrayList<List<String>> datos = new ArrayList<List<String>>();
+    ArrayList<String> datosList = new ArrayList<String>();
+    ArrayList<User> lista_user = new ArrayList<>();
+    private int User_Id;
     private String Name_User_Type;
     private String FirstName;
     private String LastName;
+    private String Ciudad;
+    private String Cedula;
+    private String Telefono;
+    private String Direccion;
+    private String Latitud;
+    private String Longitud;
+    private int lengthJson;
+    private int departamento_id;
     //endregion
 
     //region UI elements
@@ -96,6 +123,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //region Departamentos y Municipios
     //Instancia del controlador de departamentos
+    int Id_Departamento;
     long Id_Departamento_Local;
     DepartamentoController db_departamentos;
     //Instancia del controlador de municipios
@@ -115,6 +143,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<String> itemsSpinnerMunicipio; // itemsSpinnerMunicipio --> spinnerCiudades
     private ArrayAdapter<String> adapterSpinnerMunicipio; // adapterSpinnerMunicipio --> adaptersCiudades
 
+    //Botón de Busqueda;
+    private Button btnBusqueda;
+
+    //ScrollView
+    private ScrollView scrollView;
 
     //endregion
     //endregion
@@ -139,10 +172,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         db_municipios = new MunicipioController(this);
 
         //Obtención de datos que provienen del LoginActivity
+        User_Id = getIntent().getExtras().getInt("user_id");
         Name_User_Type = getIntent().getExtras().getString("name_user_type");
         FirstName = getIntent().getExtras().getString("firstname");
         LastName = getIntent().getExtras().getString("lastname");
         toolbar.setTitle("Bienvenido, " + FirstName + " " + LastName);
+
+        //Botón Búsqueda
+        btnBusqueda = (Button) findViewById(R.id.btnBuscar);
+        btnBusqueda.setOnClickListener(this);
+        //ScrollView
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
         //Spinners
         spinnerBusqueda = (Spinner) findViewById(R.id.spinnerBusqueda);
         spinnerLider = (Spinner) findViewById(R.id.spinnerLider);
@@ -308,6 +348,50 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     //endregion
 
+    //region OnClick Botón de Búsqueda
+    @Override
+    public void onClick(View v) {
+        if (Name_User_Type.equals("Candidato")) {
+            if (posBusqueda == 1) {
+                cargaLideresByCandidato();
+            } else if (posBusqueda == 3) {
+
+                cargaUsuariosByDepartamentoByCandidato();
+            }
+        }
+    }
+
+    //endregion
+
+    //region Métodos de carga Consultas
+
+    public void cargaLideresByCandidato() {
+        if(markers.size() > 0){
+            for(Marker m : markers){
+                m.remove();
+            }
+        }
+        positions.clear();
+        if (isOnlineNet()) {
+            new GetReferentes().execute();
+        }
+    }
+
+    public void cargaUsuariosByDepartamentoByCandidato() {
+        if(markers.size() > 0){
+            for(Marker m : markers){
+                m.remove();
+            }
+        }
+        positions.clear();
+        if (isOnlineNet()) {
+            new GetUsersByDepartamentoId().execute();
+        }
+    }
+
+    //endregion
+
+
     //region Métodos de los Spinners
     public void borraSpinner() {
         spinnerLider.setVisibility(View.GONE);
@@ -339,7 +423,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void cargaSpinnerDepartamento() {
         if (isOnlineNet()) {
-            new GetDepartamentos().execute();
+            itemsSpinnerDepartamento.clear();
+            new GetAllDepartamentosApp().execute();
+            //new GetDepartamentos().execute();
         } else {
             itemsSpinnerDepartamento.clear();
             ArrayList<Department> list_departamentos = new ArrayList<>();
@@ -388,7 +474,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void cargaSpinnerMunicipio() {
         if (isOnlineNet()) {
-            new GetCiudadesByDepartamento().execute();
+            new GetCitiesByDepartamentoApp().execute();
+            //new GetCiudadesByDepartamento().execute();
         } else {
             db_departamentos.abrirBaseDeDatos();
             long id_departamento = db_departamentos.GetIdDepartamentoByName(departamentoSeleccionado);
@@ -466,6 +553,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //endregion
 
+
     //region Métodos del menú
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -489,6 +577,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     //endregion
 
+
     //region MAPA
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -507,6 +596,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                LinearLayout info = new LinearLayout(getApplicationContext());
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(getApplicationContext());
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(getApplicationContext());
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
     }
 
 
@@ -638,9 +757,452 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // You can add here other case statements according to your requirement.
         }
     }
+
     //endregion
 
+
+    //region TAREAS ASÍNCRONAS DE MARCADORES
+
+    //Tarea asíncrona para obtener los referentes
+
+    private class GetReferentes extends AsyncTask<Void, Void, Void> {
+
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Cargando...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            String urlRef = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserReferentes/" + User_Id;
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(urlRef);
+
+            if (jsonStr != null) {
+                try {
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+                    lengthJson = jsonArray.length();
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        User user = new User();
+                        JSONObject r = jsonArray.getJSONObject(i);
+                        FirstName = r.getString("FirstName");
+                        LastName = r.getString("LastName");
+                        Latitud = r.getString("Latitude_Sector");
+                        Longitud = r.getString("Longitude_Sector");
+                        Ciudad = r.getString("Name_Ciudad");
+                        Cedula = r.getString("Identification_Card");
+                        Telefono = r.getString("Phone1");
+                        Direccion = r.getString("Address");
+                        positions.add(new LatLng(Double.parseDouble(Latitud), Double.parseDouble(Longitud)));
+
+                        user.setFirstName(FirstName);
+                        user.setLastName(LastName);
+                        user.setCoords_Location(Ciudad);
+                        user.setIdentification_Card(Cedula);
+                        user.setPhone1(Telefono);
+                        user.setAddress(Direccion);
+
+                        lista_user.add(user);
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            int i = 0;
+            for (LatLng position : positions) {
+                String firstname = lista_user.get(i).getFirstName();
+                String lastname = lista_user.get(i).getLastName();
+                String ciudad = lista_user.get(i).getCoords_Location();
+                String cedula = lista_user.get(i).getIdentification_Card();
+                String telefono = lista_user.get(i).getPhone1();
+                String direccion = lista_user.get(i).getAddress();
+                i = i + 1;
+
+                marker = mMap.addMarker(
+                        new MarkerOptions()
+                                .position(position)
+                                .title(firstname + " " + lastname)
+                                .snippet("Ciudad: " + ciudad + "\n" + "Cédula: " + cedula + "\n" +
+                                        "Teléfono: " + telefono + "\n" + "Dirección: " + direccion)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                );
+                markers.add(marker);
+
+
+            }
+
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(2.9, -75)));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+
+
+        }
+
+    }
+
+
+    private class GetUsersByDepartamentoId extends AsyncTask<Void, Void, Void> {
+
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Cargando...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            String urlUsersByDepartamento = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserByDepartments/" + User_Id + "/" + Id_Departamento;
+            String jsonStr = sh.makeServiceCall(urlUsersByDepartamento);
+
+            if (jsonStr != null) {
+                try {
+
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        User user = new User();
+                        FirstName = jsonObject.getString("FirstName");
+                        LastName = jsonObject.getString("LastName");
+                        Latitud = jsonObject.getString("Latitude_Sector");
+                        Longitud = jsonObject.getString("Longitude_Sector");
+                        Ciudad = jsonObject.getString("Name_Ciudad");
+                        Cedula = jsonObject.getString("Identification_Card");
+                        Telefono = jsonObject.getString("Phone1");
+                        Direccion = jsonObject.getString("Address");
+                        positions.add(new LatLng(Double.parseDouble(Latitud), Double.parseDouble(Longitud)));
+
+                        user.setFirstName(FirstName);
+                        user.setLastName(LastName);
+                        user.setCoords_Location(Ciudad);
+                        user.setIdentification_Card(Cedula);
+                        user.setPhone1(Telefono);
+                        user.setAddress(Direccion);
+
+                        lista_user.add(user);
+                    }
+
+                } catch (final JSONException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Json parsing error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                }
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            int i = 0;
+            for (LatLng position : positions) {
+                String firstname = lista_user.get(i).getFirstName();
+                String lastname = lista_user.get(i).getLastName();
+                String ciudad = lista_user.get(i).getCoords_Location();
+                String cedula = lista_user.get(i).getIdentification_Card();
+                String telefono = lista_user.get(i).getPhone1();
+                String direccion = lista_user.get(i).getAddress();
+                i = i + 1;
+
+                marker = mMap.addMarker(
+                        new MarkerOptions()
+                                .position(position)
+                                .title(firstname + " " + lastname)
+                                .snippet("Ciudad: " + ciudad + "\n" + "Cédula: " + cedula + "\n" +
+                                        "Teléfono: " + telefono + "\n" + "Dirección: " + direccion)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                );
+                markers.add(marker);
+
+
+            }
+
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(2.9, -75)));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+
+        }
+
+
+    }
+
+    //endregion
+
+
     //region TAREAS ASÍNCRONAS PARA DEPARTAMENTOS Y MUNICIPIOS
+
+    private class GetAllDepartamentosApp extends AsyncTask<Void, Void, Void> {
+
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Cargando...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            String urlDepartamentos = "http://gestionusuariospolit.azurewebsites.net/api/Departments/DepartmentsAll";
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(urlDepartamentos);
+            if (jsonStr != null) {
+                try {
+
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+
+                    ArrayList<Department> list_d = new ArrayList<>();
+                    db_departamentos.abrirBaseDeDatos();
+                    list_d = db_departamentos.GetDepartamentos();
+                    db_departamentos.cerrar();
+                    if (list_d.size() == jsonArray.length()) {
+                        for (Department d : list_d) {
+                            String d_name = d.getName();
+                            itemsSpinnerDepartamento.add(d_name);
+                        }
+                    } else {
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject c = jsonArray.getJSONObject(i);
+                            int id_departamento = c.getInt("Department_Id");
+                            String nombre_departamento = c.getString("Name");
+                            itemsSpinnerDepartamento.add(nombre_departamento);
+
+                            db_departamentos.abrirBaseDeDatos();
+                            ArrayList<Department> l_d = new ArrayList<>();
+                            l_d = db_departamentos.GetDepartamentos();
+                            db_departamentos.cerrar();
+                            if (l_d.size() < jsonArray.length()) {
+                                db_departamentos.abrirBaseDeDatos();
+                                db_departamentos.InsertDepartamento(nombre_departamento, id_departamento);
+                                db_departamentos.cerrar();
+
+                                db_departamentos.abrirBaseDeDatos();
+                                Id_Departamento_Local = db_departamentos.GetIdDepartamentoLocalByName(nombre_departamento);
+                                db_departamentos.cerrar();
+
+                                ArrayList<String> list_municipios = new ArrayList<String>();
+                                JSONArray jArray = c.getJSONArray("Cities");
+                                for (int j = 0; j < jArray.length(); j++) {
+                                    list_municipios.add(jArray.getString(j));
+                                    db_municipios.abrirBaseDeDatos();
+                                    db_municipios.InsertMunicipio(Id_Departamento_Local, jArray.getString(j));
+                                    db_municipios.cerrar();
+                                }
+                            }
+                        }
+                    }
+
+                } catch (final JSONException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Json parsing error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                }
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            // Pone los departamentos obtenidos en el spinner de departamentos de la actividad
+            adapterSpinnerDepartamento = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerDepartamento);
+            spinnerDepartamento.setAdapter(new HintSpinnerAdapter(adapterSpinnerDepartamento, R.layout.hint_row_item_departamento, getApplicationContext()));
+
+            spinnerDepartamento.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    //De acuerdo al departamento que seleccione el usuario ejecutará la tarea asíncrona para obtener los municipios del mismo.
+                    int position2 = position - 1;
+                    if (position2 != -1) {
+                        departamentoSeleccionado = itemsSpinnerDepartamento.get(position2);
+                        db_departamentos.abrirBaseDeDatos();
+                        Id_Departamento = db_departamentos.GetIdDepartamentoByName(departamentoSeleccionado);
+                        db_departamentos.cerrar();
+                    }
+                    if ((posBusqueda == 4 || posBusqueda == 5 || posBusqueda == 6 || posBusqueda == 7 || posBusqueda == 8)
+                            && position != 0) {
+                        itemsSpinnerMunicipio.clear();
+                        cargaSpinnerMunicipio();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+
+        }
+
+    }
+
+    private class GetCitiesByDepartamentoApp extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Cargando...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            HttpHandler sh = new HttpHandler();
+
+            String urlMunicipio = "http://gestionusuariospolit.azurewebsites.net/api/Departments/DepartmentsAll";
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(urlMunicipio);
+
+            if (jsonStr != null) {
+                try {
+
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject c = jsonArray.getJSONObject(i);
+                        if (c.getString("Name").equals(departamentoSeleccionado)) {
+                            JSONArray ciudades = c.getJSONArray("Cities");
+                            for (int j = 0; j < ciudades.length(); j++) {
+                                JSONObject m = ciudades.getJSONObject(j);
+                                int city_id = m.getInt("City_Id");
+                                String nombre_municipio = m.getString("Name");
+                                itemsSpinnerMunicipio.add(nombre_municipio);
+                            }
+                        }
+                    }
+
+                } catch (final JSONException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "Json parsing error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+
+                }
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            spinnerMunicipio.setVisibility(View.VISIBLE);
+            //Los municipios del departamento seleccionado son asignados al spinner de municipios
+            adapterSpinnerMunicipio = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerMunicipio);
+            spinnerMunicipio.setAdapter(new HintSpinnerAdapter(adapterSpinnerMunicipio, R.layout.hint_row_item_municipio, getApplicationContext()));
+
+            spinnerMunicipio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    //Obtiene el dato del municipio seleccionado
+                    int positionM = position - 1;
+                    if (positionM != -1) {
+                        ciudadSeleccionada = itemsSpinnerMunicipio.get(positionM);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+        }
+
+
+    }
+
 
     //Tarea asíncrona para obtener el listado de departamentos de Colombia en base a una URL con los datos en formato JSON
     private class GetDepartamentos extends AsyncTask<Void, Void, Void> {
@@ -684,7 +1246,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             db_departamentos.cerrar();
                             if (l_d.size() < jsonArray.length()) {
                                 db_departamentos.abrirBaseDeDatos();
-                                db_departamentos.InsertDepartamento(departamento);
+                                // db_departamentos.InsertDepartamento(departamento);
                                 db_departamentos.cerrar();
 
                                 db_departamentos.abrirBaseDeDatos();
@@ -749,7 +1311,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (position2 != -1) {
                         departamentoSeleccionado = itemsSpinnerDepartamento.get(position2);
                     }
-                    if ((posBusqueda == 3  || posBusqueda == 4 || posBusqueda == 5 || posBusqueda == 6 || posBusqueda == 7 || posBusqueda == 8)
+                    if ((posBusqueda == 3 || posBusqueda == 4 || posBusqueda == 5 || posBusqueda == 6 || posBusqueda == 7 || posBusqueda == 8)
                             && position != 0) {
                         itemsSpinnerMunicipio.clear();
                         cargaSpinnerMunicipio();

@@ -3,7 +3,7 @@ package com.votosapp.Models;
 public class Department {
 
     public long Department_Id_Local;
-    public long Department_Id;
+    public int Department_Id;
     public String Name;
 
     public Department() {
@@ -24,7 +24,7 @@ public class Department {
         return Department_Id;
     }
 
-    public void setDepartment_Id(long department_Id) {
+    public void setDepartment_Id(int department_Id) {
         Department_Id = department_Id;
     }
 
