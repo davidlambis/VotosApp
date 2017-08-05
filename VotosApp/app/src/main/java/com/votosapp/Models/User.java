@@ -31,6 +31,7 @@ public class User {
     public String Password;
     public String Picture;
     public String Is_Leader;
+    public int Department_Id;
 
     public User(){
         this.User_Id_Local = User_Id_Local;
@@ -59,6 +60,7 @@ public class User {
         this.Picture = Picture;
         this.Is_Leader = Is_Leader;
         this.Name_User_Type = Name_User_Type;
+        this.Department_Id = Department_Id;
     }
 
     public long getUser_Id_Local() {
@@ -277,5 +279,11 @@ public class User {
         Is_Leader = is_Leader;
     }
 
+    public int getDepartment_Id() {
+        return Department_Id;
+    }
 
+    public void setDepartment_Id(int department_Id) {
+        Department_Id = department_Id;
+    }
 }

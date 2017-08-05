@@ -35,7 +35,7 @@ public class UserController {
                            int Sector_Id, String Name_Municipe, String FirstName, String LastName, String Identification_Card,
                            String Profession, String Birth_Date, String Phone1, String Phone2, String Email, String Address,
                            String Coords_Location, String Have_Vehicle, String Vehicle_Type, String Vehicle_Plate, String Password,
-                           String Picture, String Is_Leader) {
+                           String Picture, String Is_Leader, int department_id) {
         ContentValues values = new ContentValues();
         values.put(SQLiteDBHelper.COLUMN_USER_ID, User_Id);
         values.put(SQLiteDBHelper.COLUMN_USER_TYPE_ID_REMOTE, User_Type_Id);
@@ -60,6 +60,7 @@ public class UserController {
         values.put(SQLiteDBHelper.COLUMN_USER_PASSWORD, Password);
         values.put(SQLiteDBHelper.COLUMN_USER_PICTURE, Picture);
         values.put(SQLiteDBHelper.COLUMN_USER_IS_LEADER, Is_Leader);
+        values.put(SQLiteDBHelper.COLUMN_USER_DEPARTMENT_ID, department_id);
         database.insert(SQLiteDBHelper.TABLE_NAME_USER, null, values);
     }
 
@@ -85,7 +86,7 @@ public class UserController {
     public ArrayList<User> GetUsers(String Email, String Password) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
-        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER;
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER ;
         Cursor cursor = database.rawQuery(select, null);
         ArrayList<User> list = new ArrayList<>();
         try {
@@ -100,6 +101,64 @@ public class UserController {
         return list;
 
     }
+
+    public ArrayList<User> GetUserReferenteByIdRemote(String Id_User) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'"; ;
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
+    public ArrayList<User> GetUserReferenteByIdRemoteAndDepartamentoId(String Id_User, int Id_Departamento) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'" + " AND " + SQLiteDBHelper.COLUMN_USER_DEPARTMENT_ID + " = '" + Id_Departamento + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
+    public ArrayList<User> GetUserByIdRemote(int Id_User) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_USER_ID + " = '" + Id_User + "'"; ;
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
 
     /////Asignar datos de la base de datos al metodos Set
     private User cursorToNote(Cursor cursor) {
@@ -131,7 +190,7 @@ public class UserController {
         user.setPassword(cursor.getString(24));
         user.setPicture(cursor.getString(25));
         user.setIs_Leader(cursor.getString(26));
-
+        user.setDepartment_Id(cursor.getInt(27));
         return user;
     }
 

@@ -120,7 +120,20 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             db_Usuarios.cerrar();
 
 
-            if (list_u.size() == 0) {
+            if (lista_users.size() == 0) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setTitle("Alerta");
+                builder.setMessage("No se han registrado usuarios en el dispositivo, por favor accede a internet");
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            } else if (list_u.size() == 0) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 builder.setTitle("Alerta");
                 builder.setMessage("Usuario o Contraseña incorrectos");
@@ -133,17 +146,6 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-            } else if (lista_users.size() == 0) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                builder.setTitle("Alerta");
-                builder.setMessage("No se han registrado usuarios en el dispositivo, por favor accede a internet");
-                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
             } else {
                 for (User u : list_u) {
                     User_Id = u.getUser_Id();
@@ -218,12 +220,13 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                         Is_Leader = jsonObject.getString("Is_Leader");
                         Is_Available = jsonObject.getString("Is_Available");
                         Picture = jsonObject.getString("Picture");
-                        Department_Id = jsonObject.getString("Department_Id");
+                        int department_id = jsonObject.getInt("Department_Id");
                         City_Id = jsonObject.getString("City_Id");
                         Zone_Id = jsonObject.getString("Zone_Id");
 
                         User_Type_Id = jsonObject.getInt("User_Type_Id");
-                        Nombre_Tipo_Usuario = jsonObject.getString("Name_User_Type");;
+                        Nombre_Tipo_Usuario = jsonObject.getString("Name_User_Type");
+                        ;
 
                         /*db_UserType.abrirBaseDeDatos();
                         ArrayList<UserType> list_userTypes = db_UserType.GetUserTypesByName(Name_User_Type);
@@ -242,7 +245,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                         db_Usuarios.abrirBaseDeDatos();
                         db_Usuarios.InsertUser(User_Id, User_Type_Id, Nombre_Tipo_Usuario, Referente_Id, Name_Referente, Sector_Id, Name_Municipe,
                                 FirstName, LastName, Identification_Card, Profession, Birth_Date, Phone1, Phone2, Email, Address,
-                                Coords_Location, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, Picture, Is_Leader);
+                                Coords_Location, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, Picture, Is_Leader, department_id);
                         db_Usuarios.cerrar();
 
                     } else {

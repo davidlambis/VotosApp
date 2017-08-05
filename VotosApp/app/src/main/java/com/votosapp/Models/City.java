@@ -3,7 +3,7 @@ package com.votosapp.Models;
 public class City {
 
     public long City_Id_Local;
-    public long City_Id;
+    public int City_Id;
     public long Department_Id;
     public String Name;
 
@@ -26,7 +26,7 @@ public class City {
         return City_Id;
     }
 
-    public void setCity_Id(long city_Id) {
+    public void setCity_Id(int city_Id) {
         City_Id = city_Id;
     }
 
