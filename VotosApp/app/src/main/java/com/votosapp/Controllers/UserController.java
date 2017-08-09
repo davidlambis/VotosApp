@@ -35,7 +35,7 @@ public class UserController {
                            int Sector_Id, String Name_Municipe, String FirstName, String LastName, String Identification_Card,
                            String Profession, String Birth_Date, String Phone1, String Phone2, String Email, String Address,
                            String Coords_Location, String Have_Vehicle, String Vehicle_Type, String Vehicle_Plate, String Password,
-                           String Picture, String Is_Leader, int department_id) {
+                           String Picture, String Is_Leader, int department_id, int zone_id) {
         ContentValues values = new ContentValues();
         values.put(SQLiteDBHelper.COLUMN_USER_ID, User_Id);
         values.put(SQLiteDBHelper.COLUMN_USER_TYPE_ID_REMOTE, User_Type_Id);
@@ -61,6 +61,7 @@ public class UserController {
         values.put(SQLiteDBHelper.COLUMN_USER_PICTURE, Picture);
         values.put(SQLiteDBHelper.COLUMN_USER_IS_LEADER, Is_Leader);
         values.put(SQLiteDBHelper.COLUMN_USER_DEPARTMENT_ID, department_id);
+        values.put(SQLiteDBHelper.COLUMN_USER_ZONE_ID, zone_id);
         database.insert(SQLiteDBHelper.TABLE_NAME_USER, null, values);
     }
 
@@ -140,6 +141,64 @@ public class UserController {
 
     }
 
+    public ArrayList<User> GetUserReferenteByIdRemoteAndMunicipioName(String Id_User, String Name_Municipio) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'" + " AND " + SQLiteDBHelper.COLUMN_MUNICIPE_NAME + " = '" + Name_Municipio + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
+
+    public ArrayList<User> GetUserReferenteByIdRemoteAndNameZone(String Id_User, int Id_Zone) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'" + " AND " + SQLiteDBHelper.COLUMN_USER_ZONE_ID + " = '" + Id_Zone + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
+    public ArrayList<User> GetUserReferenteByIdRemoteAndNameSector(String Id_User, int Id_Sector) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'" + " AND " + SQLiteDBHelper.COLUMN_SECTOR_ID_REMOTE + " = '" + Id_Sector + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
     public ArrayList<User> GetUserByIdRemote(int Id_User) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
@@ -191,6 +250,7 @@ public class UserController {
         user.setPicture(cursor.getString(25));
         user.setIs_Leader(cursor.getString(26));
         user.setDepartment_Id(cursor.getInt(27));
+        user.setId_Zone(cursor.getInt(28));
         return user;
     }
 

@@ -8,8 +8,9 @@ public class Sector {
     public long Zone_Id;
     public String Name;
     public String Description;
-    public double Latitude;
-    public double Longitude;
+    public String Latitude;
+    public String Longitude;
+    public int City_Id;
 
     public Sector(){
         this.Sector_Id_Local = Sector_Id_Local;
@@ -20,6 +21,7 @@ public class Sector {
         this.Description = Description;
         this.Latitude = Latitude;
         this.Longitude = Longitude;
+        this.City_Id = City_Id;
     }
 
     public long getSector_Id_Local() {
@@ -70,20 +72,28 @@ public class Sector {
         Description = description;
     }
 
-    public double getLatitude() {
+    public String getLatitude() {
         return Latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(String latitude) {
         Latitude = latitude;
     }
 
-    public double getLongitude() {
+    public String getLongitude() {
         return Longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(String longitude) {
         Longitude = longitude;
+    }
+
+    public int getCity_Id() {
+        return City_Id;
+    }
+
+    public void setCity_Id(int city_Id) {
+        City_Id = city_Id;
     }
 }
 

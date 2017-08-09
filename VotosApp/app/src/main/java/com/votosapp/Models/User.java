@@ -32,6 +32,7 @@ public class User {
     public String Picture;
     public String Is_Leader;
     public int Department_Id;
+    public int Id_Zone;
 
     public User(){
         this.User_Id_Local = User_Id_Local;
@@ -61,6 +62,7 @@ public class User {
         this.Is_Leader = Is_Leader;
         this.Name_User_Type = Name_User_Type;
         this.Department_Id = Department_Id;
+        this.Id_Zone = Id_Zone;
     }
 
     public long getUser_Id_Local() {
@@ -285,5 +287,13 @@ public class User {
 
     public void setDepartment_Id(int department_Id) {
         Department_Id = department_Id;
+    }
+
+    public int getId_Zone() {
+        return Id_Zone;
+    }
+
+    public void setId_Zone(int id_Zone) {
+        Id_Zone = id_Zone;
     }
 }

@@ -58,6 +58,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_SECTOR_DESCRIPTION = "Descripcion_Sector";
     public static final String COLUMN_SECTOR_LATITUDE = "Latitud_Sector";
     public static final String COLUMN_SECTOR_LONGITUDE = "Longitud_Sector";
+    public static final String COLUMN_SECTOR_CITY_ID = "Sector_City_Id";
 
     //Datos de la tabla de Tipo de Usuario
     public static final String TABLE_NAME_USERTYPE = "Tipo_de_Usuario";
@@ -95,6 +96,8 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_IS_LEADER = "Es_Lider";
     public static final String COLUMN_USER_NAME_USER_TYPE = "NombreTipoUsuario_User";
     public static final String COLUMN_USER_DEPARTMENT_ID = "Department_Id_User";
+    public static final String COLUMN_USER_ZONE_ID = "Zone_Id_User";
+
 
     //endregion
 
@@ -136,9 +139,9 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_NAME_ZONE + " (" +
                     COLUMN_ZONE_ID_LOCAL + " INTEGER PRIMARY KEY AUTOINCREMENT NULL , " +
                     COLUMN_ZONE_ID + " INTEGER NULL , " +
-                    COLUMN_TYPE_ZONE_ID_ON_ZONE + " INTEGER , " +
-                    COLUMN_CITY_ID_ON_ZONE + " INTEGER , " +
-                    COLUMN_SECTOR_TYPE_ID_ON_ZONE + " INTEGER , " +
+                    COLUMN_TYPE_ZONE_ID_ON_ZONE + " INTEGER NULL , " +
+                    COLUMN_CITY_ID_ON_ZONE + " INTEGER NULL , " +
+                    COLUMN_SECTOR_TYPE_ID_ON_ZONE + " INTEGER NULL, " +
                     COLUMN_ZONE_NAME + " TEXT , " +
                     COLUMN_ZONE_DESCRIPTION + " TEXT , " +
                     COLUMN_ZONE_LATITUDE + " TEXT , " +
@@ -153,12 +156,13 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_NAME_SECTOR + " (" +
                     COLUMN_SECTOR_ID_LOCAL + " INTEGER PRIMARY KEY AUTOINCREMENT NULL , " +
                     COLUMN_SECTOR_ID + " INTEGER NULL , " +
-                    COLUMN_SECTOR_TYPE_ID_ON_SECTOR + " INTEGER , " +
-                    COLUMN_ZONE_ID_ON_SECTOR + " INTEGER , " +
+                    COLUMN_SECTOR_TYPE_ID_ON_SECTOR + " INTEGER NULL , " +
+                    COLUMN_ZONE_ID_ON_SECTOR + " INTEGER NULL , " +
                     COLUMN_SECTOR_NAME + " TEXT , " +
                     COLUMN_SECTOR_DESCRIPTION + " TEXT , " +
                     COLUMN_SECTOR_LATITUDE + " TEXT , " +
                     COLUMN_SECTOR_LONGITUDE + " TEXT , " +
+                    COLUMN_SECTOR_CITY_ID + " TEXT , " +
                     "FOREIGN KEY(" + COLUMN_SECTOR_TYPE_ID_ON_SECTOR + ") REFERENCES " + TABLE_NAME_SECTOR_TYPE + "(" + COLUMN_SECTOR_TYPE_ID_LOCAL + "));" +
                     "FOREIGN KEY(" + COLUMN_ZONE_ID_ON_SECTOR + ") REFERENCES " + TABLE_NAME_ZONE + "(" + COLUMN_ZONE_ID_LOCAL + "));";
 
@@ -200,6 +204,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                     COLUMN_USER_PICTURE + " TEXT , " +
                     COLUMN_USER_IS_LEADER + " TEXT , " +
                     COLUMN_USER_DEPARTMENT_ID + " INTEGER , " +
+                    COLUMN_USER_ZONE_ID + " INTEGER , " +
                     "FOREIGN KEY(" + COLUMN_USER_TYPE_ID_ON_USER + ") REFERENCES " + TABLE_NAME_USERTYPE + "(" + COLUMN_USER_TYPE_ID_LOCAL + "));" +
                     "FOREIGN KEY(" + COLUMN_REFERENTE_ID_LOCAL + ") REFERENCES " + TABLE_NAME_USER + "(" + COLUMN_USER_ID_LOCAL + "));" +
                     "FOREIGN KEY(" + COLUMN_SECTOR_ID_ON_USER + ") REFERENCES " + TABLE_NAME_SECTOR + "(" + COLUMN_SECTOR_ID_LOCAL + "));";

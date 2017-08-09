@@ -9,8 +9,8 @@ public class Zone {
     public long Sector_Type_Id;
     public String Name;
     public String Description;
-    public double Latitude;
-    public double Longitude;
+    public String Latitude;
+    public String Longitude;
 
     public Zone(){
         this.Zone_Id_Local = Zone_Id_Local;
@@ -80,19 +80,19 @@ public class Zone {
         Description = description;
     }
 
-    public double getLatitude() {
+    public String getLatitude() {
         return Latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(String latitude) {
         Latitude = latitude;
     }
 
-    public double getLongitude() {
+    public String getLongitude() {
         return Longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(String longitude) {
         Longitude = longitude;
     }
 }

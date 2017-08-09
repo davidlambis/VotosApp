@@ -17,6 +17,7 @@ public class MunicipioController {
     private Context context;
     private SQLiteDatabase database;
     private int Id_Municipio;
+    private String Name_Municipio;
 
     public MunicipioController(Context c) {
         context = c;
@@ -55,6 +56,23 @@ public class MunicipioController {
         }
         return Id_Municipio;
     }
+
+    public String GetNameMunicipioById(int id_municipio) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_CITIES + " where " + SQLiteDBHelper.COLUMN_CITY_ID + " = '" + id_municipio + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        try {
+            if (cursor.moveToFirst()) {
+                Name_Municipio = cursor.getString(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_CITY_NAME));
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return Name_Municipio;
+    }
+
 
     public ArrayList<City> GetMunicipiosByIdDepartamento(long Id_Departamento) {
         dbHelper = new SQLiteDBHelper(context);
