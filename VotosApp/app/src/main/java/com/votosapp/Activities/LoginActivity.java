@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.votosapp.Controllers.UserController;
 import com.votosapp.Handler.HttpHandler;
+import com.votosapp.Models.Sesion;
 import com.votosapp.Models.User;
 import com.votosapp.R;
 
@@ -75,6 +76,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     private String Nombre_Tipo_Usuario;
     UserController db_Usuarios;
 
+    private int Estado_Sesion;
     //endregion
 
     //region OnCreate
@@ -84,11 +86,26 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         setContentView(R.layout.activity_login);
 
         db_Usuarios = new UserController(this);
+        ArrayList<Sesion> list_sesion = new ArrayList<>();
+        db_Usuarios.abrirBaseDeDatos();
+        list_sesion = db_Usuarios.GetSesion();
+        db_Usuarios.cerrar();
+        if (list_sesion.size() > 0) {
+            for (Sesion s : list_sesion) {
+                Estado_Sesion = s.getEstado_Sesion();
+            }
+        }
+        if (Estado_Sesion == 1) {
+            Intent i = new Intent(this, MapsActivity.class);
+            startActivity(i);
+            finish();
+        }
 
         edtCorreo = (EditText) findViewById(R.id.edtCorreo);
         edtContraseña = (EditText) findViewById(R.id.edtContraseña);
         btnIniciarSesion = (Button) findViewById(R.id.btnIniciarSesion);
         btnIniciarSesion.setOnClickListener(this);
+
     }
     //endregion
 
@@ -153,12 +170,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                     FirstName = u.getFirstName();
                     LastName = u.getLastName();
                 }
+                Estado_Sesion = 1;
+                db_Usuarios.abrirBaseDeDatos();
+                db_Usuarios.InsertSesion(Estado_Sesion, User_Id, Nombre_Tipo_Usuario, FirstName, LastName);
+                db_Usuarios.cerrar();
                 Intent i = new Intent(LoginActivity.this, MapsActivity.class);
                 Toast.makeText(getApplicationContext(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                i.putExtra("user_id", User_Id);
+                /*i.putExtra("user_id", User_Id);
                 i.putExtra("name_user_type", Nombre_Tipo_Usuario);
                 i.putExtra("firstname", FirstName);
-                i.putExtra("lastname", LastName);
+                i.putExtra("lastname", LastName);*/
                 startActivity(i);
                 finish();
             }
@@ -186,7 +207,6 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             HttpHandler sh = new HttpHandler();
             String URL = url + strCorreo + "/" + strContraseña;
             String jsonStr = sh.makeServiceCall(URL);
-
 
 
             if (jsonStr != null) {
@@ -243,7 +263,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                         long User_Type_Id_Local = db_UserType.UserTypeIdLocalByRemote(User_Type_Id);
                         db_UserType.cerrar(); */
 
-                        if(Nombre_Tipo_Usuario.equals("Candidato")) {
+                        if (Nombre_Tipo_Usuario.equals("Candidato")) {
                             db_Usuarios.abrirBaseDeDatos();
                             db_Usuarios.InsertUser(User_Id, User_Type_Id, Nombre_Tipo_Usuario, Referente_Id, Name_Referente, Sector_Id, Name_Municipe,
                                     FirstName, LastName, Identification_Card, Profession, Birth_Date, Phone1, Phone2, Email, Address,
@@ -291,12 +311,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
+                Estado_Sesion = 1;
+                db_Usuarios.abrirBaseDeDatos();
+                db_Usuarios.InsertSesion(Estado_Sesion, User_Id, Nombre_Tipo_Usuario, FirstName, LastName);
+                db_Usuarios.cerrar();
                 Intent i = new Intent(LoginActivity.this, MapsActivity.class);
                 Toast.makeText(getApplicationContext(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                i.putExtra("user_id", User_Id);
+                /*i.putExtra("user_id", User_Id);
                 i.putExtra("name_user_type", Nombre_Tipo_Usuario);
                 i.putExtra("firstname", FirstName);
-                i.putExtra("lastname", LastName);
+                i.putExtra("lastname", LastName);*/
                 startActivity(i);
                 finish();
             }

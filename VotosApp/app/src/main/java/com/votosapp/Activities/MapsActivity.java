@@ -54,6 +54,7 @@ import com.votosapp.Handler.HttpHandler;
 import com.votosapp.Models.City;
 import com.votosapp.Models.Department;
 import com.votosapp.Models.Sector;
+import com.votosapp.Models.Sesion;
 import com.votosapp.Models.User;
 import com.votosapp.Models.Zone;
 import com.votosapp.R;
@@ -133,6 +134,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     int Id_Departamento;
     int Id_City;
     int Id_Zone;
+    int Id_Usuario;
     int idZone, idSector;
     int Id_Sector;
     long Id_Departamento_Local;
@@ -147,7 +149,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     SectorController db_sectors;
 
     private ProgressDialog pDialog;
-    public String departamentoSeleccionado, ciudadSeleccionada, corregimientoSeleccionado, comunaseleccionada, veredaseleccionada, barrioseleccionado;
+    public String departamentoSeleccionado, ciudadSeleccionada, corregimientoSeleccionado, comunaseleccionada, veredaseleccionada, barrioseleccionado, liderseleccionado;
     // URL JSON con datos de departamentos y municipios de Colombia
     private static String url = "http://54.237.155.47/iot/colombia.json";
 
@@ -165,6 +167,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //ScrollView
     private ScrollView scrollView;
+
+    private int Estado_Sesion;
 
     //endregion
     //endregion
@@ -198,10 +202,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         db_sectors = new SectorController(this);
 
         //Obtención de datos que provienen del LoginActivity
-        User_Id = getIntent().getExtras().getInt("user_id");
+        /*User_Id = getIntent().getExtras().getInt("user_id");
         Name_User_Type = getIntent().getExtras().getString("name_user_type");
         FirstName = getIntent().getExtras().getString("firstname");
-        LastName = getIntent().getExtras().getString("lastname");
+        LastName = getIntent().getExtras().getString("lastname");*/
+        ArrayList<Sesion> list_sesion = new ArrayList<>();
+        db_usuarios.abrirBaseDeDatos();
+        list_sesion = db_usuarios.GetSesion();
+        db_usuarios.cerrar();
+        if (list_sesion.size() > 0) {
+            for (Sesion s : list_sesion) {
+                Estado_Sesion = s.getEstado_Sesion();
+                User_Id = s.getUser_Id_Sesion();
+                Name_User_Type = s.getName_User_Type_Sesion();
+                FirstName = s.getFirstname_Sesion();
+                LastName = s.getLastname_Sesion();
+            }
+        }
+
         toolbar.setTitle("Bienvenido, " + FirstName + " " + LastName);
 
         //Botón Búsqueda
@@ -221,6 +239,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         /** Uso del spinner de búsqueda**/
         //Arreglo de Consultas para el candidato
+        itemsSpinnerLider = new ArrayList<String>();
         itemsSpinnerDepartamento = new ArrayList<String>();
         itemsSpinnerMunicipio = new ArrayList<String>();
         itemsSpinnerCorregimiento = new ArrayList<String>();
@@ -384,6 +403,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         if (Name_User_Type.equals("Candidato")) {
             if (posBusqueda == 1) {
+                cargaReferentes();
+            } else if (posBusqueda == 2) {
+                User_Id = Id_Usuario;
                 cargaReferentes();
             } else if (posBusqueda == 3) {
                 cargaUsuariosByDepartamento();
@@ -1018,7 +1040,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else {
                 new GetUsersByBarrio().execute();
             }
-        }else{
+        } else {
             String id = String.valueOf(User_Id);
             String name_vereda = veredaseleccionada;
 
@@ -1134,10 +1156,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void cargaSpinnerLider() {
-        itemsSpinnerLider = new ArrayList<String>();
-        itemsSpinnerLider.add(0, "Líder de Prueba");
-        adapterSpinnerLider = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, itemsSpinnerLider);
-        spinnerLider.setAdapter(new HintSpinnerAdapter(adapterSpinnerLider, R.layout.hint_row_item_lider, this));
+        if (isOnlineNet()) {
+            itemsSpinnerLider.clear();
+            new GetLideres().execute();
+        } else {
+            //TODO PROBAR CARGA LÍDERES SIN INTERNET
+            itemsSpinnerLider.clear();
+            db_usuarios.abrirBaseDeDatos();
+            ArrayList<User> list_users = db_usuarios.GetUserReferenteByIdRemote(String.valueOf(User_Id));
+            db_usuarios.cerrar();
+            if (list_users.size() > 0) {
+                for (User user : list_users) {
+                    String firstname = user.getFirstName();
+                    String lastname = user.getLastName();
+                    String name = firstname + " " + lastname;
+                    itemsSpinnerLider.add(name);
+                }
+                adapterSpinnerLider = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerLider);
+                spinnerLider.setAdapter(new HintSpinnerAdapter(adapterSpinnerLider, R.layout.hint_row_item_lider, getApplicationContext()));
+                spinnerLider.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                                           @Override
+                                                           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                               int position2 = position - 1;
+                                                               if (position2 != -1) {
+
+                                                                   liderseleccionado = itemsSpinnerLider.get(position2);
+                                                                   db_usuarios.abrirBaseDeDatos();
+                                                                   Id_Usuario = db_usuarios.GetUserIdByFirstNameAndLastname(liderseleccionado);
+                                                                   db_usuarios.cerrar();
+                                                               }
+                                                           }
+
+                                                           @Override
+                                                           public void onNothingSelected(AdapterView<?> parent) {
+
+                                                           }
+                                                       }
+
+                );
+            }
+        }
     }
 
     public void cargaSpinnerDepartamento() {
@@ -1556,6 +1614,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (item.getItemId()) {
             //Cuando se presiona cerrar sesión retorna al LoginActivity
             case R.id.cerrarSesion:
+                db_usuarios.abrirBaseDeDatos();
+                Estado_Sesion = 0;
+                db_usuarios.UpdateSesion(Estado_Sesion, User_Id, Name_User_Type, FirstName, LastName);
+                db_usuarios.cerrar();
                 Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
@@ -3028,6 +3090,129 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     //region TAREAS ASÍNCRONAS PARA DEPARTAMENTOS Y MUNICIPIOS
+
+    private class GetLideres extends AsyncTask<Void, Void, Void> {
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Cargando...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            String urlRef = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserReferentes/" + User_Id;
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(urlRef);
+
+            if (jsonStr != null) {
+                try {
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+                    lengthJson = jsonArray.length();
+
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        User user = new User();
+                        JSONObject r = jsonArray.getJSONObject(i);
+
+                        int User_Id = r.getInt("User_Id");
+                        long User_Type_Id = r.getLong("User_Type_Id");
+                        String Name_User_Type = r.getString("Name_User_Type");
+                        String Referente_Id = r.getString("Referente_Id");
+                        String Name_Referente = r.getString("Name_Referente");
+                        int Sector_Id = r.getInt("Sector_Id");
+                        String Name_Municipe = r.getString("Name_Municipe");
+                        String firstname = r.getString("FirstName");
+                        String lastname = r.getString("LastName");
+                        String Identification_Card = r.getString("Identification_Card");
+                        String Profession = r.getString("Profession");
+                        String BirthDate = r.getString("Birth_Date");
+                        String Phone2 = r.getString("Phone2");
+                        String Email = r.getString("Email");
+                        String Coords_Location = r.getString("Coords_Location");
+                        String Have_Vehicle = r.getString("Have_Vehicle");
+                        String Vehicle_Type = r.getString("Vehicle_Type");
+                        String Vehicle_Plate = r.getString("Vehicle_Plate");
+                        String Password = r.getString("Password");
+                        String Picture = r.getString("Picture");
+                        String Is_Leader = r.getString("Is_Leader");
+                        String latitud = r.getString("Latitude_Sector");
+                        String longitud = r.getString("Longitude_Sector");
+                        String ciudad = r.getString("Name_Ciudad");
+                        String cedula = r.getString("Identification_Card");
+                        String telefono = r.getString("Phone1");
+                        String direccion = r.getString("Address");
+                        int department_id = r.getInt("Department_Id");
+                        int zone_id = r.getInt("Zone_Id");
+                        itemsSpinnerLider.add(firstname + " " + lastname);
+
+
+                        db_usuarios.abrirBaseDeDatos();
+                        ArrayList<User> list_users = db_usuarios.GetUserByIdRemote(User_Id);
+                        db_usuarios.cerrar();
+
+                        if (list_users.size() == 0) {
+
+                            //TODO En COORDS LOCATION ESTOY GUARDANDO LATITUD y EN PICTURE LONGITUD, HAY QUE AÑADIR ESOS CAMPOS
+                            db_usuarios.abrirBaseDeDatos();
+                            db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
+                                    Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
+                                    Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
+                                    Is_Leader, department_id, zone_id);
+                            db_usuarios.cerrar();
+                        }
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+            // Pone los departamentos obtenidos en el spinner de departamentos de la actividad
+            adapterSpinnerLider = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerLider);
+            spinnerLider.setAdapter(new HintSpinnerAdapter(adapterSpinnerLider, R.layout.hint_row_item_lider, getApplicationContext()));
+
+            spinnerLider.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    //De acuerdo al departamento que seleccione el usuario ejecutará la tarea asíncrona para obtener los municipios del mismo.
+                    int position2 = position - 1;
+                    if (position2 != -1) {
+
+                        liderseleccionado = itemsSpinnerLider.get(position2);
+                        db_usuarios.abrirBaseDeDatos();
+                        Id_Usuario = db_usuarios.GetUserIdByFirstNameAndLastname(liderseleccionado);
+                        db_usuarios.cerrar();
+                        /*departamentoSeleccionado = itemsSpinnerDepartamento.get(position2);
+                        db_departamentos.abrirBaseDeDatos();
+                        Id_Departamento = db_departamentos.GetIdDepartamentoByName(departamentoSeleccionado);
+                        db_departamentos.cerrar();*/
+                    }
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+        }
+
+    }
 
     private class GetAllDepartamentosApp extends AsyncTask<Void, Void, Void> {
 

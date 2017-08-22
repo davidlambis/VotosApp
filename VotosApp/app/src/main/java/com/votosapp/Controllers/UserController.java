@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.votosapp.Database.SQLiteDBHelper;
+import com.votosapp.Models.Sesion;
 import com.votosapp.Models.User;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ public class UserController {
     private SQLiteDBHelper dbHelper;
     private Context context;
     private SQLiteDatabase database;
+    int idUser;
+    int Estado_Sesion;
 
     public UserController(Context c) {
         context = c;
@@ -65,6 +68,23 @@ public class UserController {
         database.insert(SQLiteDBHelper.TABLE_NAME_USER, null, values);
     }
 
+    public int GetUserIdByFirstNameAndLastname(String FirstAndLastName) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_USER_FIRSTNAME + " || ' ' || " + SQLiteDBHelper.COLUMN_USER_LASTNAME + " = '" + FirstAndLastName + "'";
+        Cursor cursor = database.rawQuery(select, null);
+        try {
+            if (cursor.moveToFirst()) {
+                idUser = cursor.getInt(cursor.getColumnIndex(SQLiteDBHelper.COLUMN_USER_ID));
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return idUser;
+    }
+
+
     public ArrayList<User> GetUserByEmailAndPassword(String Email, String Password) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
@@ -87,7 +107,7 @@ public class UserController {
     public ArrayList<User> GetUsers(String Email, String Password) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
-        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER ;
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER;
         Cursor cursor = database.rawQuery(select, null);
         ArrayList<User> list = new ArrayList<>();
         try {
@@ -106,7 +126,8 @@ public class UserController {
     public ArrayList<User> GetUserReferenteByIdRemote(String Id_User) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
-        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'"; ;
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_REFERENTE_ID + " = '" + Id_User + "'";
+        ;
         Cursor cursor = database.rawQuery(select, null);
         ArrayList<User> list = new ArrayList<>();
         try {
@@ -202,7 +223,8 @@ public class UserController {
     public ArrayList<User> GetUserByIdRemote(int Id_User) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();
-        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_USER_ID + " = '" + Id_User + "'"; ;
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_USER_ID + " = '" + Id_User + "'";
+        ;
         Cursor cursor = database.rawQuery(select, null);
         ArrayList<User> list = new ArrayList<>();
         try {
@@ -252,6 +274,58 @@ public class UserController {
         user.setDepartment_Id(cursor.getInt(27));
         user.setId_Zone(cursor.getInt(28));
         return user;
+    }
+
+    public void InsertSesion(int estado_sesion, int user_id_sesion, String name_user_type_sesion,
+                             String firstname_sesion, String lastname_sesion) {
+        ContentValues values = new ContentValues();
+        values.put(SQLiteDBHelper.COLUMN_ESTADO_SESION, estado_sesion);
+        values.put(SQLiteDBHelper.COLUMN_USER_ID_SESION, user_id_sesion);
+        values.put(SQLiteDBHelper.COLUMN_NAME_USER_TYPE_SESION, name_user_type_sesion);
+        values.put(SQLiteDBHelper.COLUMN_FIRSTNAME_SESION, firstname_sesion);
+        values.put(SQLiteDBHelper.COLUMN_LASTNAME_SESION, lastname_sesion);
+        database.insert(SQLiteDBHelper.TABLE_NAME_SESION, null, values);
+    }
+
+    public void UpdateSesion(int estado_sesion, int user_id_sesion, String name_user_type_sesion,
+                             String firstname_sesion, String lastname_sesion) {
+        ContentValues values = new ContentValues();
+        values.put(SQLiteDBHelper.COLUMN_ESTADO_SESION, estado_sesion);
+        values.put(SQLiteDBHelper.COLUMN_USER_ID_SESION, user_id_sesion);
+        values.put(SQLiteDBHelper.COLUMN_NAME_USER_TYPE_SESION, name_user_type_sesion);
+        values.put(SQLiteDBHelper.COLUMN_FIRSTNAME_SESION, firstname_sesion);
+        values.put(SQLiteDBHelper.COLUMN_LASTNAME_SESION, lastname_sesion);
+        database.update(SQLiteDBHelper.TABLE_NAME_SESION, values, SQLiteDBHelper.COLUMN_USER_ID_SESION + " = '" + user_id_sesion + "'", null);
+    }
+
+    public ArrayList<Sesion> GetSesion() {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_SESION + " order by " + SQLiteDBHelper.COLUMN_ID_SESION + " desc limit 1";
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<Sesion> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                Sesion sesion = cursorToNoteSesion(cursor);
+                list.add(sesion);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
+    private Sesion cursorToNoteSesion(Cursor cursor) {
+        Sesion sesion = new Sesion();
+        sesion.setId_Sesion(cursor.getInt(0));
+        sesion.setEstado_Sesion(cursor.getInt(1));
+        sesion.setUser_Id_Sesion(cursor.getInt(2));
+        sesion.setName_User_Type_Sesion(cursor.getString(3));
+        sesion.setFirstname_Sesion(cursor.getString(4));
+        sesion.setLastname_Sesion(cursor.getString(5));
+        return sesion;
     }
 
 

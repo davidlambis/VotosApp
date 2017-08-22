@@ -11,6 +11,15 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     //region DATOS DE LAS TABLAS
+    //Tabla de Sesión
+    public static final String TABLE_NAME_SESION = "Sesion";
+    public static final String COLUMN_ID_SESION = "Id_Sesion";
+    public static final String COLUMN_ESTADO_SESION = "Estado_Sesion";
+    public static final String COLUMN_USER_ID_SESION = "User_Id_Sesion";
+    public static final String COLUMN_NAME_USER_TYPE_SESION = "Name_User_Type_Sesion";
+    public static final String COLUMN_FIRSTNAME_SESION = "Firstname_Sesion";
+    public static final String COLUMN_LASTNAME_SESION = "Lastname_Sesion";
+
     //Datos de la tabla de Departamento
     public static final String TABLE_NAME_DEPARTMENTS = "Departamentos";
     public static final String COLUMN_DEPARTMENT_ID_LOCAL = "Id_Departamento_Local";
@@ -102,6 +111,16 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     //endregion
 
     //region SINTAXIS SQL PARA CREAR TABLAS
+
+    //Sintaxis SQL para crear la tabla de Sesión
+    private static final String CREATE_TABLE_QUERY_SESION =
+            "CREATE TABLE " + TABLE_NAME_SESION + " (" +
+                    COLUMN_ID_SESION + " INTEGER PRIMARY KEY AUTOINCREMENT NULL , " +
+                    COLUMN_ESTADO_SESION + " INTEGER NULL , " +
+                    COLUMN_USER_ID_SESION + " INTEGER NULL , " +
+                    COLUMN_NAME_USER_TYPE_SESION + " TEXT , " +
+                    COLUMN_FIRSTNAME_SESION + " TEXT , " +
+                    COLUMN_LASTNAME_SESION + " TEXT " + ")";
 
     //Sintaxix SQL para crear la tabla de Departamento
     private static final String CREATE_TABLE_QUERY_DEPARTAMENTS =
@@ -220,6 +239,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CREATE_TABLE_QUERY_SESION);
         db.execSQL(CREATE_TABLE_QUERY_DEPARTAMENTS);
         db.execSQL(CREATE_TABLE_QUERY_CITIES);
         db.execSQL(CREATE_TABLE_ZONE_TYPE);
@@ -240,6 +260,7 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + CREATE_TABLE_ZONE_TYPE);
         db.execSQL("DROP TABLE IF EXISTS " + CREATE_TABLE_QUERY_CITIES);
         db.execSQL("DROP TABLE IF EXISTS " + CREATE_TABLE_QUERY_DEPARTAMENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_TABLE_QUERY_SESION);
         onCreate(db);
     }
     //endregion
