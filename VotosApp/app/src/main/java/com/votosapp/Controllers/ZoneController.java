@@ -66,6 +66,25 @@ public class ZoneController {
 
     }
 
+    public ArrayList<Zone> GetZonesByCityId(int Id_City) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_ZONE + " where " + SQLiteDBHelper.COLUMN_CITY_ID_ON_ZONE + " = " + Id_City;
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<Zone> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                Zone zone = cursorToNote(cursor);
+                list.add(zone);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
     public int GetIdZoneByName(String nombre_zone) {
         dbHelper = new SQLiteDBHelper(context);
         database = dbHelper.getWritableDatabase();

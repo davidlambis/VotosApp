@@ -38,7 +38,7 @@ public class UserController {
                            int Sector_Id, String Name_Municipe, String FirstName, String LastName, String Identification_Card,
                            String Profession, String Birth_Date, String Phone1, String Phone2, String Email, String Address,
                            String Coords_Location, String Have_Vehicle, String Vehicle_Type, String Vehicle_Plate, String Password,
-                           String Picture, String Is_Leader, int department_id, int zone_id) {
+                           String Picture, String Is_Leader, int department_id, int zone_id, int estado_sincronizacion, int id_city) {
         ContentValues values = new ContentValues();
         values.put(SQLiteDBHelper.COLUMN_USER_ID, User_Id);
         values.put(SQLiteDBHelper.COLUMN_USER_TYPE_ID_REMOTE, User_Type_Id);
@@ -65,6 +65,8 @@ public class UserController {
         values.put(SQLiteDBHelper.COLUMN_USER_IS_LEADER, Is_Leader);
         values.put(SQLiteDBHelper.COLUMN_USER_DEPARTMENT_ID, department_id);
         values.put(SQLiteDBHelper.COLUMN_USER_ZONE_ID, zone_id);
+        values.put(SQLiteDBHelper.COLUMN_USER_ESTADO_SINCRONIZACION, estado_sincronizacion);
+        values.put(SQLiteDBHelper.COLUMN_USER_ID_CITY, id_city);
         database.insert(SQLiteDBHelper.TABLE_NAME_USER, null, values);
     }
 
@@ -84,6 +86,24 @@ public class UserController {
         return idUser;
     }
 
+
+    public ArrayList<User> GetUsersByEstadoSincronizacionFalse(int estadosincronizacion){
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_USER + " where " + SQLiteDBHelper.COLUMN_USER_ESTADO_SINCRONIZACION + " = " + estadosincronizacion ;
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<User> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                User user = cursorToNote(cursor);
+                list.add(user);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+    }
 
     public ArrayList<User> GetUserByEmailAndPassword(String Email, String Password) {
         dbHelper = new SQLiteDBHelper(context);
@@ -273,6 +293,8 @@ public class UserController {
         user.setIs_Leader(cursor.getString(26));
         user.setDepartment_Id(cursor.getInt(27));
         user.setId_Zone(cursor.getInt(28));
+        user.setEstado_Sincronizacion(cursor.getInt(29));
+        user.setId_City(cursor.getInt(30));
         return user;
     }
 

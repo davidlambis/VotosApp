@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Inicio de la Appbar -->
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/AppbarRegisterUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/MiTema.AppBarOverlay">
+
+        <!-- Inicio de la Toolbar-->
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/ToolbarRegisterUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <!-- Fin de la Toolbar-->
+
+    </android.support.design.widget.AppBarLayout>
+    <!-- Fin de la Appbar -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="24dp">
+
+            <!-- Nombres -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtNombres"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Nombres: "
+                    android:inputType="text"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Apellidos -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtApellidos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Apellidos: "
+                    android:inputType="text"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Cédula -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtCedula"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Cédula: "
+                    android:inputType="number"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Profesión -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtProfesion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Profesión: "
+                    android:inputType="text"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Teléfono1 -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtTelefono1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Teléfono 1: "
+                    android:inputType="number"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Teléfono2 -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtTelefono2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Teléfono 2: "
+                    android:inputType="number"
+                    android:maxLength="15"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Dirección -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtDireccion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Dirección: "
+                    android:inputType="text"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!-- Email -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Email: "
+                    android:inputType="textEmailAddress"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <!-- Contraseña -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Contraseña: "
+                    android:inputType="textPassword"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+            <Spinner
+                android:id="@+id/spinnerDepartamento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"></Spinner>
+
+            <Spinner
+                android:id="@+id/spinnerMunicipio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"></Spinner>
+
+            <Spinner
+                android:id="@+id/spinnerZona"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"></Spinner>
+
+            <Spinner
+                android:id="@+id/spinnerSector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"></Spinner>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@android:color/white"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:drawablePadding="12dp"
+                    android:padding="8dp"
+                    android:text="Tiene Vehículo: "
+                    android:textColor="#808080"
+                    android:textSize="18dp" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/swTieneVehiculo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp" />
+            </LinearLayout>
+
+            <!-- Placa -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edtPlaca"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:drawablePadding="16dp"
+                    android:hint="Placa Vehículo: "
+                    android:inputType="text"
+                    android:maxLength="25"
+                    android:padding="8dp" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnRegistrar"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/btn_presionado"
+                android:text="Registrar"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.Button"
+                android:textColor="#ffffff" />
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

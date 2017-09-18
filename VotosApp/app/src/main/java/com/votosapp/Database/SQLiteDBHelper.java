@@ -106,6 +106,8 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_NAME_USER_TYPE = "NombreTipoUsuario_User";
     public static final String COLUMN_USER_DEPARTMENT_ID = "Department_Id_User";
     public static final String COLUMN_USER_ZONE_ID = "Zone_Id_User";
+    public static final String COLUMN_USER_ESTADO_SINCRONIZACION = "Estado_Sincronizacion_User";
+    public static final String COLUMN_USER_ID_CITY = "Id_City_User";
 
 
     //endregion
@@ -224,6 +226,8 @@ public class SQLiteDBHelper extends SQLiteOpenHelper {
                     COLUMN_USER_IS_LEADER + " TEXT , " +
                     COLUMN_USER_DEPARTMENT_ID + " INTEGER , " +
                     COLUMN_USER_ZONE_ID + " INTEGER , " +
+                    COLUMN_USER_ESTADO_SINCRONIZACION + " INTEGER , " +
+                    COLUMN_USER_ID_CITY + " INTEGER , " +
                     "FOREIGN KEY(" + COLUMN_USER_TYPE_ID_ON_USER + ") REFERENCES " + TABLE_NAME_USERTYPE + "(" + COLUMN_USER_TYPE_ID_LOCAL + "));" +
                     "FOREIGN KEY(" + COLUMN_REFERENTE_ID_LOCAL + ") REFERENCES " + TABLE_NAME_USER + "(" + COLUMN_USER_ID_LOCAL + "));" +
                     "FOREIGN KEY(" + COLUMN_SECTOR_ID_ON_USER + ") REFERENCES " + TABLE_NAME_SECTOR + "(" + COLUMN_SECTOR_ID_LOCAL + "));";

@@ -33,6 +33,8 @@ public class User {
     public String Is_Leader;
     public int Department_Id;
     public int Id_Zone;
+    public int Estado_Sincronizacion;
+    public int Id_City;
 
     public User(){
         this.User_Id_Local = User_Id_Local;
@@ -63,6 +65,8 @@ public class User {
         this.Name_User_Type = Name_User_Type;
         this.Department_Id = Department_Id;
         this.Id_Zone = Id_Zone;
+        this.Estado_Sincronizacion = Estado_Sincronizacion;
+        this.Id_City = Id_City;
     }
 
     public long getUser_Id_Local() {
@@ -295,5 +299,21 @@ public class User {
 
     public void setId_Zone(int id_Zone) {
         Id_Zone = id_Zone;
+    }
+
+    public int getEstado_Sincronizacion() {
+        return Estado_Sincronizacion;
+    }
+
+    public void setEstado_Sincronizacion(int estado_Sincronizacion) {
+        Estado_Sincronizacion = estado_Sincronizacion;
+    }
+
+    public int getId_City() {
+        return Id_City;
+    }
+
+    public void setId_City(int id_City) {
+        Id_City = id_City;
     }
 }

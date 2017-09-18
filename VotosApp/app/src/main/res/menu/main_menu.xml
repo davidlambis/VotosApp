@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Agregar un usuario -->
+    <item android:id="@+id/action_add_user"
+        android:icon="@drawable/ic_add_usuario"
+        android:title="Agregar Usuario"
+        app:showAsAction="always" />
     <!-- Opción de cerrar sesión -->
     <item
         android:id="@+id/cerrarSesion"

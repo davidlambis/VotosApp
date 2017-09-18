@@ -542,6 +542,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (isOnlineNet()) {
             new GetUsersByDepartamentoId().execute();
         } else {
+            ArrayList<Sesion> list_sesion = new ArrayList<>();
+            db_usuarios.abrirBaseDeDatos();
+            list_sesion = db_usuarios.GetSesion();
+            db_usuarios.cerrar();
+            if (list_sesion.size() > 0) {
+                for (Sesion s : list_sesion) {
+                    Estado_Sesion = s.getEstado_Sesion();
+                    User_Id = s.getUser_Id_Sesion();
+                    Name_User_Type = s.getName_User_Type_Sesion();
+                    FirstName = s.getFirstname_Sesion();
+                    LastName = s.getLastname_Sesion();
+                }
+            }
             db_usuarios.abrirBaseDeDatos();
             String id = String.valueOf(User_Id);
             int id_department = db_departamentos.GetIdDepartamentoByName(departamentoSeleccionado);
@@ -1042,11 +1055,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         } else {
             String id = String.valueOf(User_Id);
-            String name_vereda = veredaseleccionada;
+            String name_barrio = barrioseleccionado;
 
             if (Id_Sector != 0) {
                 db_sectors.abrirBaseDeDatos();
-                idSector = db_sectors.GetIdSectorByName(name_vereda);
+                idSector = db_sectors.GetIdSectorByName(name_barrio);
                 db_sectors.cerrar();
             } else {
                 idSector = 0;
@@ -1160,7 +1173,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             itemsSpinnerLider.clear();
             new GetLideres().execute();
         } else {
-            //TODO PROBAR CARGA LÍDERES SIN INTERNET
             itemsSpinnerLider.clear();
             db_usuarios.abrirBaseDeDatos();
             ArrayList<User> list_users = db_usuarios.GetUserReferenteByIdRemote(String.valueOf(User_Id));
@@ -1359,6 +1371,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                spinnerMunicipio.setVisibility(View.GONE);
+                Id_City = 0;
             }
 
         }
@@ -1491,7 +1505,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             ArrayList<Sector> list_sectores = new ArrayList<>();
             db_sectors.abrirBaseDeDatos();
-            list_sectores = db_sectors.GetSectorByCityId(id_city, 3);
+            list_sectores = db_sectors.GetSectorByCityId(id_city, 4);
             db_sectors.cerrar();
 
             if (list_sectores.size() > 0) {
@@ -1549,7 +1563,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             ArrayList<Sector> list_sectores = new ArrayList<>();
             db_sectors.abrirBaseDeDatos();
-            list_sectores = db_sectors.GetSectorByCityId(id_city, 4);
+            list_sectores = db_sectors.GetSectorByCityId(id_city, 3);
             db_sectors.cerrar();
 
             if (list_sectores.size() > 0) {
@@ -1620,6 +1634,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 db_usuarios.cerrar();
                 Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
                 startActivity(intent);
+                finish();
+                break;
+            case R.id.action_add_user:
+                Intent i = new Intent(MapsActivity.this, RegisterUserActivity.class);
+                i.putExtra("Name_User_Type", Name_User_Type);
+                startActivity(i);
                 finish();
                 break;
         }
@@ -1830,7 +1850,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            String urlRef = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserReferentes/" + User_Id;
+            String urlRef = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserReferentes/" + User_Id;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlRef);
 
@@ -1903,6 +1923,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int zone_id = r.getInt("Zone_Id");
+                            Id_City = r.getInt("City_Id");
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -1916,7 +1938,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, zone_id);
+                                        Is_Leader, department_id, zone_id, Estado_Sincronizacion, Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2011,7 +2033,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            String urlUsersByDepartamento = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserByDepartments/" + User_Id + "/" + Id_Departamento;
+            String urlUsersByDepartamento = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserByDepartments/" + User_Id + "/" + Id_Departamento;
             String jsonStr = sh.makeServiceCall(urlUsersByDepartamento);
 
             if (jsonStr != null) {
@@ -2085,6 +2107,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int zone_id = r.getInt("Zone_Id");
+                            Id_City = r.getInt("City_Id");
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2098,7 +2122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, zone_id);
+                                        Is_Leader, department_id, zone_id, Estado_Sincronizacion,Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2211,7 +2235,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            String urlUsersByMunicipio = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserByCities/" + User_Id + "/" + Id_City;
+            String urlUsersByMunicipio = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserByCities/" + User_Id + "/" + Id_City;
             String jsonStr = sh.makeServiceCall(urlUsersByMunicipio);
 
             if (jsonStr != null) {
@@ -2288,6 +2312,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int zone_id = r.getInt("Zone_Id");
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2301,7 +2326,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, zone_id);
+                                        Is_Leader, department_id, zone_id, Estado_Sincronizacion, Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2415,7 +2440,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             HttpHandler sh = new HttpHandler();
 
             if (String.valueOf(Id_Zone) != null) {
-                String urlUsersByCorregimiento = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserByZones/" + User_Id + "/" + Id_Zone;
+                String urlUsersByCorregimiento = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserByZones/" + User_Id + "/" + Id_Zone;
                 String jsonStr = sh.makeServiceCall(urlUsersByCorregimiento);
 
                 lista_user.clear();
@@ -2457,6 +2482,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int id_zone = Id_Zone;
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2470,7 +2496,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, id_zone);
+                                        Is_Leader, department_id, id_zone, Estado_Sincronizacion,Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2587,7 +2613,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             HttpHandler sh = new HttpHandler();
 
             if (String.valueOf(Id_Zone) != null) {
-                String urlUsersByComuna = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserByZones/" + User_Id + "/" + Id_Zone;
+                String urlUsersByComuna = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserByZones/" + User_Id + "/" + Id_Zone;
                 String jsonStr = sh.makeServiceCall(urlUsersByComuna);
 
                 lista_user.clear();
@@ -2629,6 +2655,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int id_zone = Id_Zone;
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2642,7 +2669,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, id_zone);
+                                        Is_Leader, department_id, id_zone, Estado_Sincronizacion,Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2758,7 +2785,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             HttpHandler sh = new HttpHandler();
 
             if (String.valueOf(Id_Sector) != null) {
-                String urlUsersByCorregimiento = "http://gestionusuariospolit.azurewebsites.net/api/Departments/ReferentesBySector/" + User_Id + "/" + Id_Sector;
+                String urlUsersByCorregimiento = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/ReferentesBySector/" + User_Id + "/" + Id_Sector;
                 String jsonStr = sh.makeServiceCall(urlUsersByCorregimiento);
 
                 lista_user.clear();
@@ -2800,6 +2827,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int id_zone = Id_Zone;
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2813,7 +2841,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, id_zone);
+                                        Is_Leader, department_id, id_zone, Estado_Sincronizacion,Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -2930,7 +2958,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             HttpHandler sh = new HttpHandler();
 
             if (String.valueOf(Id_Sector) != null) {
-                String urlUsersByBarrio = "http://gestionusuariospolit.azurewebsites.net/api/Departments/ReferentesBySector/" + User_Id + "/" + Id_Sector;
+                String urlUsersByBarrio = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/ReferentesBySector/" + User_Id + "/" + Id_Sector;
                 String jsonStr = sh.makeServiceCall(urlUsersByBarrio);
 
                 lista_user.clear();
@@ -2972,6 +3000,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             String direccion = r.getString("Address");
                             int department_id = r.getInt("Department_Id");
                             int id_zone = Id_Zone;
+                            int Estado_Sincronizacion = 1;
                             positions.add(new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud)));
 
                             db_usuarios.abrirBaseDeDatos();
@@ -2985,7 +3014,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                         Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                         Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                        Is_Leader, department_id, id_zone);
+                                        Is_Leader, department_id, id_zone, Estado_Sincronizacion,Id_City);
                                 db_usuarios.cerrar();
                             }
 
@@ -3105,7 +3134,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            String urlRef = "http://gestionusuariospolit.azurewebsites.net/api/users/GetUserReferentes/" + User_Id;
+            String urlRef = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/GetUserReferentes/" + User_Id;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlRef);
 
@@ -3148,6 +3177,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         String direccion = r.getString("Address");
                         int department_id = r.getInt("Department_Id");
                         int zone_id = r.getInt("Zone_Id");
+                        int Estado_Sincronizacion = 1;
+                        Id_City = r.getInt("City_Id");
                         itemsSpinnerLider.add(firstname + " " + lastname);
 
 
@@ -3162,7 +3193,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             db_usuarios.InsertUser(User_Id, User_Type_Id, Name_User_Type, Referente_Id, Name_Referente, Sector_Id,
                                     Name_Municipe, firstname, lastname, Identification_Card, Profession, BirthDate, telefono, Phone2,
                                     Email, direccion, latitud, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, longitud,
-                                    Is_Leader, department_id, zone_id);
+                                    Is_Leader, department_id, zone_id, Estado_Sincronizacion,Id_City);
                             db_usuarios.cerrar();
                         }
                     }
@@ -3229,7 +3260,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            String urlDepartamentos = "http://gestionusuariospolit.azurewebsites.net/api/Departments/DepartmentsAll";
+            String urlDepartamentos = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/DepartmentsAll";
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlDepartamentos);
             if (jsonStr != null) {
@@ -3380,7 +3411,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             HttpHandler sh = new HttpHandler();
 
-            String urlMunicipio = "http://gestionusuariospolit.azurewebsites.net/api/Departments/DepartmentsAll";
+            String urlMunicipio = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/DepartmentsAll";
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlMunicipio);
 
@@ -3436,69 +3467,87 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (pDialog.isShowing())
                 pDialog.dismiss();
 
-            spinnerMunicipio.setVisibility(View.VISIBLE);
-            //Los municipios del departamento seleccionado son asignados al spinner de municipios
-            adapterSpinnerMunicipio = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerMunicipio);
-            spinnerMunicipio.setAdapter(new HintSpinnerAdapter(adapterSpinnerMunicipio, R.layout.hint_row_item_municipio, getApplicationContext()));
-
-            spinnerMunicipio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //Obtiene el dato del municipio seleccionado
-                    int positionM = position - 1;
-                    if (positionM != -1) {
-                        ciudadSeleccionada = itemsSpinnerMunicipio.get(positionM);
-                        db_municipios.abrirBaseDeDatos();
-                        Id_City = db_municipios.GetIdMunicipioByName(ciudadSeleccionada);
-                        db_municipios.cerrar();
-                        //itemsSpinnerCorregimiento.clear();
-                        if (Name_User_Type.equals("Candidato")) {
-                            if (posBusqueda == 5 && position != 0) {
-                                spinnerCorregimiento.setVisibility(View.GONE);
-                                itemsSpinnerCorregimiento.clear();
-                                cargaSpinnerCorregimiento();
-                            } else if (posBusqueda == 6 && position != 0) {
-                                spinnerComuna.setVisibility(View.GONE);
-                                itemsSpinnerComuna.clear();
-                                cargaSpinnerComuna();
-                            } else if (posBusqueda == 7 && position != 0) {
-                                spinnerVereda.setVisibility(View.GONE);
-                                itemsSpinnerVereda.clear();
-                                cargaSpinnerVereda();
-                            } else if (posBusqueda == 8 && position != 0) {
-                                spinnerBarrio.setVisibility(View.GONE);
-                                itemsSpinnerBarrio.clear();
-                                cargaSpinnerBarrio();
-                            }
-                        }
-                        if (Name_User_Type.equals("Lider")) {
-                            if (posBusqueda == 4 && position != 0) {
-                                spinnerCorregimiento.setVisibility(View.GONE);
-                                itemsSpinnerCorregimiento.clear();
-                                cargaSpinnerCorregimiento();
-                            } else if (posBusqueda == 5 && position != 0) {
-                                spinnerComuna.setVisibility(View.GONE);
-                                itemsSpinnerComuna.clear();
-                                cargaSpinnerComuna();
-                            } else if (posBusqueda == 6 && position != 0) {
-                                spinnerVereda.setVisibility(View.GONE);
-                                itemsSpinnerVereda.clear();
-                                cargaSpinnerVereda();
-                            } else if (posBusqueda == 7 && position != 0) {
-                                spinnerBarrio.setVisibility(View.GONE);
-                                itemsSpinnerBarrio.clear();
-                                cargaSpinnerBarrio();
-                            }
-                        }
-
+            if (itemsSpinnerMunicipio.size() == 0 ) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setTitle("Alerta");
+                builder.setMessage("No hay Municipios registrados en este departamento");
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
                     }
-                }
+                });
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                spinnerMunicipio.setVisibility(View.GONE);
+                Id_City = 0;
+            } else {
 
+                spinnerMunicipio.setVisibility(View.VISIBLE);
+                //Los municipios del departamento seleccionado son asignados al spinner de municipios
+                adapterSpinnerMunicipio = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, itemsSpinnerMunicipio);
+                spinnerMunicipio.setAdapter(new HintSpinnerAdapter(adapterSpinnerMunicipio, R.layout.hint_row_item_municipio, getApplicationContext()));
+
+                spinnerMunicipio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //Obtiene el dato del municipio seleccionado
+                        int positionM = position - 1;
+                        if (positionM != -1) {
+                            ciudadSeleccionada = itemsSpinnerMunicipio.get(positionM);
+                            db_municipios.abrirBaseDeDatos();
+                            Id_City = db_municipios.GetIdMunicipioByName(ciudadSeleccionada);
+                            db_municipios.cerrar();
+                            //itemsSpinnerCorregimiento.clear();
+                            if (Name_User_Type.equals("Candidato")) {
+                                if (posBusqueda == 5 && position != 0) {
+                                    spinnerCorregimiento.setVisibility(View.GONE);
+                                    itemsSpinnerCorregimiento.clear();
+                                    cargaSpinnerCorregimiento();
+                                } else if (posBusqueda == 6 && position != 0) {
+                                    spinnerComuna.setVisibility(View.GONE);
+                                    itemsSpinnerComuna.clear();
+                                    cargaSpinnerComuna();
+                                } else if (posBusqueda == 7 && position != 0) {
+                                    spinnerVereda.setVisibility(View.GONE);
+                                    itemsSpinnerVereda.clear();
+                                    cargaSpinnerVereda();
+                                } else if (posBusqueda == 8 && position != 0) {
+                                    spinnerBarrio.setVisibility(View.GONE);
+                                    itemsSpinnerBarrio.clear();
+                                    cargaSpinnerBarrio();
+                                }
+                            }
+                            if (Name_User_Type.equals("Lider")) {
+                                if (posBusqueda == 4 && position != 0) {
+                                    spinnerCorregimiento.setVisibility(View.GONE);
+                                    itemsSpinnerCorregimiento.clear();
+                                    cargaSpinnerCorregimiento();
+                                } else if (posBusqueda == 5 && position != 0) {
+                                    spinnerComuna.setVisibility(View.GONE);
+                                    itemsSpinnerComuna.clear();
+                                    cargaSpinnerComuna();
+                                } else if (posBusqueda == 6 && position != 0) {
+                                    spinnerVereda.setVisibility(View.GONE);
+                                    itemsSpinnerVereda.clear();
+                                    cargaSpinnerVereda();
+                                } else if (posBusqueda == 7 && position != 0) {
+                                    spinnerBarrio.setVisibility(View.GONE);
+                                    itemsSpinnerBarrio.clear();
+                                    cargaSpinnerBarrio();
+                                }
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
+
+            }
         }
 
 
@@ -3522,7 +3571,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             HttpHandler sh = new HttpHandler();
 
-            String urlZone = "http://gestionusuariospolit.azurewebsites.net/api/Departments/GetZonesByCities/" + Id_City;
+            String urlZone = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/GetZonesByCities/" + Id_City;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlZone);
 
@@ -3662,7 +3711,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             HttpHandler sh = new HttpHandler();
 
-            String urlZone = "http://gestionusuariospolit.azurewebsites.net/api/Departments/GetZonesByCities/" + Id_City;
+            String urlZone = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/GetZonesByCities/" + Id_City;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlZone);
 
@@ -3750,6 +3799,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                spinnerComuna.setVisibility(View.GONE);
+                Id_City = 0;
+                Name_Sector = "";
+                Id_Zone = 0;
             }
 
             if (Name_Sector.equals("Comuna") && Name_Sector != "") {
@@ -3799,7 +3852,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             HttpHandler sh = new HttpHandler();
 
-            String urlSector = "http://gestionusuariospolit.azurewebsites.net/api/Departments/GetZonesByCities/" + Id_City;
+            String urlSector = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/GetZonesByCities/" + Id_City;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlSector);
 
@@ -3940,7 +3993,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             HttpHandler sh = new HttpHandler();
 
-            String urlSector = "http://gestionusuariospolit.azurewebsites.net/api/Departments/GetZonesByCities/" + Id_City;
+            String urlSector = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/Departments/GetZonesByCities/" + Id_City;
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(urlSector);
 

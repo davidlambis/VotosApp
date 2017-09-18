@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
     //region Variables
 
-    private String url = "http://gestionusuariospolit.azurewebsites.net/api/users/LoginUser/";
+    private String url = "http://ec2-34-234-94-92.compute-1.amazonaws.com/api/users/LoginUser/";
     int length;
 
     //Tabla de UserType
@@ -263,11 +263,12 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                         long User_Type_Id_Local = db_UserType.UserTypeIdLocalByRemote(User_Type_Id);
                         db_UserType.cerrar(); */
 
+                        int Estado_Sincronizacion = 1;
                         if (Nombre_Tipo_Usuario.equals("Candidato")) {
                             db_Usuarios.abrirBaseDeDatos();
                             db_Usuarios.InsertUser(User_Id, User_Type_Id, Nombre_Tipo_Usuario, Referente_Id, Name_Referente, Sector_Id, Name_Municipe,
                                     FirstName, LastName, Identification_Card, Profession, Birth_Date, Phone1, Phone2, Email, Address,
-                                    Coords_Location, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, Picture, Is_Leader, department_id, Zone_Id);
+                                    Coords_Location, Have_Vehicle, Vehicle_Type, Vehicle_Plate, Password, Picture, Is_Leader, department_id, Zone_Id, Estado_Sincronizacion, Integer.parseInt(City_Id));
                             db_Usuarios.cerrar();
                         }
 

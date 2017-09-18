@@ -98,6 +98,25 @@ public class SectorController {
 
     }
 
+    public ArrayList<Sector> GetSectorsByCityId(int Id_City) {
+        dbHelper = new SQLiteDBHelper(context);
+        database = dbHelper.getWritableDatabase();
+        String select = "select * from " + SQLiteDBHelper.TABLE_NAME_SECTOR + " where " + SQLiteDBHelper.COLUMN_SECTOR_CITY_ID + " = " + Id_City ;
+        Cursor cursor = database.rawQuery(select, null);
+        ArrayList<Sector> list = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                Sector sector = cursorToNote(cursor);
+                list.add(sector);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed())
+                cursor.close();
+        }
+        return list;
+
+    }
+
 
     /////Asignar datos de la base de datos al metodos Set
     private Sector cursorToNote(Cursor cursor) {
